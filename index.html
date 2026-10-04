@@ -9,10 +9,222 @@
     <meta property="og:description" content="A sleek unblocked games hub powered by a clean iframe-driven JSON catalog." />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Trailing slash normalization for GitHub Pages subpaths -->
+    <script>
+      (function() {
+        var path = window.location.pathname;
+        if (path && path.indexOf('.') === -1 && !path.endsWith('/')) {
+          window.history.replaceState(null, '', path + '/' + window.location.search + window.location.hash);
+        }
+      })();
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./style.css" />
+
+    <!-- Embedded CSS to guarantee zero blank flash even if external stylesheet is blocked or delayed -->
+    <style>
+      :root {
+        --bg-canvas: #030712;
+        --bg-surface: #0f172a;
+        --border-color: #1f2937;
+        --border-hover: #374151;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --text-dim: #64748b;
+        --accent-rose: #f43f5e;
+        --accent-rose-hover: #e11d48;
+        --accent-amber: #f59e0b;
+        --accent-sky: #38bdf8;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        background-color: #030712;
+        color: #f8fafc;
+        font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+        line-height: 1.5;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      a { color: inherit; text-decoration: none; }
+      button { font-family: inherit; cursor: pointer; border: none; background: none; }
+      input, select, textarea { font-family: inherit; }
+      .tabular-nums { font-variant-numeric: tabular-nums; }
+      .header {
+        position: sticky; top: 0; z-index: 40;
+        background: rgba(3, 7, 18, 0.95); backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border-color);
+      }
+      .header-inner {
+        max-width: 1280px; margin: 0 auto; padding: 0 1.5rem; height: 64px;
+        display: flex; align-items: center; justify-content: space-between;
+      }
+      .brand { display: flex; align-items: center; gap: 0.6rem; font-size: 1.25rem; font-weight: 800; color: #fff; }
+      .brand-flame {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 34px; height: 34px; border-radius: 8px;
+        background: linear-gradient(135deg, #f43f5e, #f59e0b);
+        box-shadow: 0 4px 12px rgba(244, 63, 94, 0.3);
+      }
+      .brand-flame svg { width: 18px; height: 18px; fill: #fff; }
+      .brand span { color: var(--accent-rose); }
+      .brand-count { font-size: 0.75rem; color: var(--text-dim); font-weight: 500; margin-left: 0.5rem; }
+      @media (max-width: 640px) { .brand-count { display: none; } }
+      .nav-links { display: flex; align-items: center; gap: 1.5rem; }
+      @media (max-width: 860px) { .nav-links { display: none; } }
+      .nav-btn { font-size: 0.85rem; font-weight: 500; color: var(--text-muted); transition: color 0.15s; }
+      .nav-btn:hover, .nav-btn.active { color: #fff; }
+      .header-actions { display: flex; align-items: center; gap: 0.5rem; }
+      .btn-random, .btn-add {
+        display: flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.75rem;
+        background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 6px;
+        font-size: 0.75rem; font-weight: 600; color: var(--text-muted); transition: all 0.15s;
+      }
+      .btn-random:hover, .btn-add:hover { background: #1e293b; color: #fff; }
+      @media (max-width: 640px) { .btn-random { display: none; } }
+      .btn-panic {
+        display: flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.85rem;
+        background: var(--accent-rose); border-radius: 6px; font-size: 0.75rem; font-weight: 700; color: #fff;
+      }
+      .btn-panic:hover { background: var(--accent-rose-hover); }
+      .hero {
+        border-bottom: 1px solid var(--border-color);
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.6) 0%, rgba(3, 7, 18, 1) 100%);
+        padding: 3rem 1.5rem;
+      }
+      .hero-inner {
+        max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 2rem; align-items: center;
+      }
+      @media (min-width: 992px) { .hero-inner { grid-template-columns: 7fr 5fr; } }
+      .hero-kicker { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; font-weight: 600; color: var(--accent-rose); margin-bottom: 0.75rem; }
+      .hero-title { font-size: 2.25rem; font-weight: 800; letter-spacing: -0.03em; color: #fff; line-height: 1.15; margin-bottom: 1rem; }
+      @media (min-width: 768px) { .hero-title { font-size: 2.75rem; } }
+      .hero-desc { font-size: 0.9rem; color: var(--text-muted); max-width: 600px; line-height: 1.6; margin-bottom: 1.25rem; }
+      .hero-stats { display: flex; flex-wrap: wrap; align-items: center; gap: 1.25rem; font-size: 0.8rem; color: var(--text-dim); }
+      .hero-stat-num { font-weight: 700; color: #fff; margin-right: 0.35rem; }
+      .spotlight-card {
+        background: rgba(15, 23, 42, 0.9); border: 1px solid var(--border-color); border-radius: 14px;
+        padding: 1.5rem; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.5);
+      }
+      .spotlight-top { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+      .spotlight-badge { font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-rose); }
+      .spotlight-title { font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem; }
+      .spotlight-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1.25rem; }
+      .spotlight-actions { display: flex; gap: 0.75rem; }
+      .btn-play-spotlight {
+        display: inline-flex; align-items: center; gap: 0.5rem; background: var(--accent-rose); color: #fff;
+        font-size: 0.8rem; font-weight: 700; padding: 0.6rem 1.2rem; border-radius: 8px;
+      }
+      .btn-play-spotlight:hover { background: var(--accent-rose-hover); }
+      .btn-code-spotlight {
+        display: inline-flex; align-items: center; gap: 0.4rem; background: var(--bg-surface);
+        border: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.8rem; font-weight: 600;
+        padding: 0.6rem 1rem; border-radius: 8px;
+      }
+      .filter-bar {
+        position: sticky; top: 64px; z-index: 30; background: rgba(3, 7, 18, 0.95); backdrop-filter: blur(8px);
+        border-bottom: 1px solid var(--border-color); padding: 0.75rem 1.5rem;
+      }
+      .filter-inner {
+        max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 0.75rem;
+      }
+      @media (min-width: 768px) { .filter-inner { flex-direction: row; align-items: center; justify-content: space-between; } }
+      .category-tabs { display: flex; gap: 0.25rem; background: rgba(15, 23, 42, 0.9); padding: 0.25rem; border: 1px solid var(--border-color); border-radius: 8px; overflow-x: auto; }
+      .tab-btn { padding: 0.35rem 0.75rem; font-size: 0.75rem; font-weight: 600; border-radius: 6px; color: var(--text-muted); white-space: nowrap; }
+      .tab-btn:hover { color: #fff; }
+      .tab-btn.active { background: var(--accent-rose); color: #fff; }
+      .filter-controls { display: flex; align-items: center; gap: 0.75rem; }
+      .search-box { position: relative; flex: 1; }
+      .search-icon { position: absolute; left: 0.65rem; top: 50%; transform: translateY(-50%); color: var(--text-dim); width: 14px; height: 14px; }
+      .search-input {
+        width: 100%; min-width: 220px; background: var(--bg-surface); border: 1px solid var(--border-color);
+        border-radius: 6px; padding: 0.4rem 1.8rem 0.4rem 2rem; font-size: 0.75rem; color: #fff; outline: none;
+      }
+      .search-input:focus { border-color: var(--accent-rose); }
+      .clear-search { position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); font-size: 0.65rem; font-weight: 700; color: var(--text-dim); }
+      .sort-select { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 6px; padding: 0.4rem 0.6rem; font-size: 0.75rem; color: var(--text-muted); outline: none; }
+      .main-content { max-width: 1280px; margin: 0 auto; padding: 2rem 1.5rem; width: 100%; flex: 1; }
+      .grid-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem; }
+      .games-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+      @media (min-width: 600px) { .games-grid { grid-template-columns: repeat(2, 1fr); } }
+      @media (min-width: 900px) { .games-grid { grid-template-columns: repeat(3, 1fr); } }
+      @media (min-width: 1200px) { .games-grid { grid-template-columns: repeat(4, 1fr); } }
+      .game-card {
+        background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); border-radius: 12px;
+        overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.2s ease;
+      }
+      .game-card:hover { transform: translateY(-3px); border-color: var(--border-hover); background: rgba(15, 23, 42, 0.95); }
+      .game-thumb { position: relative; height: 140px; display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; }
+      .game-thumb-icon { width: 58px; height: 58px; border-radius: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 16px rgba(0,0,0,0.4); }
+      .game-fav-btn {
+        position: absolute; top: 0.5rem; right: 0.5rem; width: 32px; height: 32px; border-radius: 6px;
+        background: rgba(3, 7, 18, 0.7); border: 1px solid rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; color: var(--text-dim);
+      }
+      .game-fav-btn:hover, .game-fav-btn.active { color: var(--accent-amber); border-color: rgba(245, 158, 11, 0.4); }
+      .game-fav-btn.active { background: rgba(245, 158, 11, 0.2); }
+      .game-featured-badge { position: absolute; top: 0.6rem; left: 0.6rem; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: var(--accent-rose); letter-spacing: 0.05em; }
+      .game-card-body { padding: 1rem; display: flex; flex-direction: column; flex: 1; }
+      .game-meta { display: flex; align-items: center; gap: 0.35rem; font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.35rem; }
+      .game-meta .cat { color: var(--text-muted); font-weight: 600; }
+      .game-meta .rating { color: var(--accent-amber); font-weight: 600; }
+      .game-title { font-size: 1rem; font-weight: 700; color: #fff; cursor: pointer; }
+      .game-title:hover { color: var(--accent-rose); }
+      .game-desc { font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; margin-top: 0.35rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+      .game-footer { margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid rgba(255, 255, 255, 0.06); display: flex; justify-content: space-between; align-items: center; }
+      .game-tags { font-size: 0.7rem; color: var(--text-dim); display: flex; gap: 0.35rem; }
+      .game-actions { display: flex; align-items: center; gap: 0.5rem; }
+      .btn-card-iframe { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-dim); padding: 0.2rem 0.4rem; border-radius: 4px; }
+      .btn-card-iframe:hover { background: var(--bg-surface); color: #fff; }
+      .btn-card-play { background: var(--bg-surface); color: #fff; font-size: 0.75rem; font-weight: 600; padding: 0.35rem 0.75rem; border-radius: 6px; }
+      .btn-card-play:hover { background: var(--accent-rose); }
+      .empty-state { text-align: center; padding: 4rem 1.5rem; border: 1px dashed var(--border-color); border-radius: 12px; }
+      .empty-state h3 { font-size: 1.1rem; color: #fff; margin-bottom: 0.5rem; }
+      .empty-state p { font-size: 0.8rem; color: var(--text-muted); max-width: 400px; margin: 0 auto 1.25rem; }
+      .btn-reset-filters { background: var(--bg-surface); color: #fff; font-size: 0.75rem; font-weight: 600; padding: 0.5rem 1rem; border-radius: 6px; }
+      .player-view { display: none; max-width: 1280px; margin: 0 auto; padding: 1.5rem; width: 100%; }
+      .player-toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+      .btn-back { display: flex; align-items: center; gap: 0.4rem; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 6px; padding: 0.5rem 0.85rem; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); }
+      .btn-back:hover { color: #fff; }
+      .player-tools { display: flex; align-items: center; gap: 0.5rem; }
+      .player-tool-btn { display: flex; align-items: center; gap: 0.35rem; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 6px; padding: 0.5rem 0.75rem; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); }
+      .player-tool-btn:hover { color: #fff; }
+      .stage-wrapper { position: relative; background: #000; border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; height: 600px; max-width: 1040px; margin: 0 auto; transition: all 0.3s ease; }
+      .stage-wrapper.theater { max-width: 100%; height: 75vh; }
+      .stage-wrapper iframe { width: 100%; height: 100%; border: none; display: block; }
+      .player-info-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+      @media (min-width: 992px) { .player-info-grid { grid-template-columns: 2fr 1fr; } }
+      .player-card { background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; }
+      .controls-box { margin-top: 1rem; background: rgba(3, 7, 18, 0.8); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; }
+      .controls-box-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--accent-rose); margin-bottom: 0.4rem; }
+      .controls-box-text { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-main); }
+      .modal-overlay { display: none; position: fixed; inset: 0; z-index: 50; background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(6px); align-items: center; justify-content: center; padding: 1rem; }
+      .modal-overlay.active { display: flex; }
+      .modal-box { background: #0f172a; border: 1px solid var(--border-color); border-radius: 14px; width: 100%; max-width: 720px; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden; }
+      .modal-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+      .modal-title { font-size: 1rem; font-weight: 700; color: #fff; }
+      .modal-close { font-size: 1.25rem; color: var(--text-muted); cursor: pointer; }
+      .modal-tabs { display: flex; gap: 0.5rem; padding: 0.5rem 1.5rem; background: rgba(3, 7, 18, 0.4); border-bottom: 1px solid var(--border-color); }
+      .modal-tab-btn { font-size: 0.75rem; font-weight: 600; padding: 0.35rem 0.75rem; border-radius: 6px; color: var(--text-muted); }
+      .modal-tab-btn.active { background: var(--bg-surface); color: #fff; }
+      .modal-body { padding: 1.5rem; overflow-y: auto; flex: 1; }
+      .json-code-view { background: #030712; border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #34d399; max-height: 400px; overflow: auto; white-space: pre-wrap; word-break: break-all; }
+      .form-group { margin-bottom: 1rem; }
+      .form-group label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem; }
+      .form-input, .form-textarea, .form-select { width: 100%; background: #030712; border: 1px solid var(--border-color); border-radius: 6px; padding: 0.5rem 0.75rem; font-size: 0.75rem; color: #fff; outline: none; }
+      .form-input:focus, .form-textarea:focus, .form-select:focus { border-color: var(--accent-rose); }
+      .btn-submit-game { background: var(--accent-rose); color: #fff; font-weight: 700; font-size: 0.75rem; padding: 0.6rem 1.25rem; border-radius: 6px; float: right; }
+      .panic-screen { display: none; position: fixed; inset: 0; z-index: 100; background: #ffffff; color: #1e293b; overflow-y: auto; font-family: -apple-system, sans-serif; }
+      .panic-screen.active { display: flex; flex-direction: column; }
+      .panic-toolbar { background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 0.5rem 1rem; display: flex; justify-content: space-between; align-items: center; }
+      .panic-doc { max-width: 800px; margin: 2rem auto; padding: 3rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 4px; font-family: Georgia, serif; line-height: 1.7; }
+      .footer { border-top: 1px solid var(--border-color); background: #020617; padding: 2rem 1.5rem; font-size: 0.75rem; color: var(--text-dim); }
+      .footer-inner { max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 1rem; align-items: center; }
+      @media (min-width: 640px) { .footer-inner { flex-direction: row; justify-content: space-between; } }
+    </style>
   </head>
   <body>
     <!-- Top Navigation Bar -->
@@ -134,7 +346,7 @@
         </div>
       </section>
 
-      <!-- Main Games Grid -->
+      <!-- Main Games Grid (Pre-rendered for instantaneous static visibility) -->
       <main class="main-content">
         <div class="grid-header">
           <div>Showing <span id="games-count" class="tabular-nums" style="font-weight: 700; color: #fff;">12</span> games<span id="category-filter-label"></span></div>
@@ -142,7 +354,202 @@
         </div>
 
         <div id="games-grid" class="games-grid">
-          <!-- Populated dynamically via app.js -->
+          <!-- Card 1: Snake -->
+          <div class="game-card" data-id="snake">
+            <div class="game-thumb" style="background: radial-gradient(circle at 50% 50%, #10b98122 0%, #090d16 100%);">
+              <div class="game-thumb-icon" style="background: #10b98118; border: 1px solid #10b98155; color: #10b981;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"></rect></svg>
+              </div>
+              <div class="game-featured-badge">★ Featured</div>
+              <button class="game-fav-btn" title="Favorite"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></button>
+            </div>
+            <div class="game-card-body">
+              <div class="game-meta"><span class="cat">Arcade</span><span>·</span><span class="rating">★ 4.9</span><span>·</span><span class="tabular-nums">248K plays</span></div>
+              <div class="game-title">Retro Snake 8-Bit</div>
+              <div class="game-desc">Navigate the pixel serpent across the grid, gobble glowing energy orbs, and test your reflexes as speed increases.</div>
+              <div class="game-footer"><div class="game-tags"><span>Arcade</span><span>/</span><span>Retro</span></div><div class="game-actions"><button class="btn-card-iframe">&lt;iframe&gt;</button><button class="btn-card-play">Play</button></div></div>
+            </div>
+          </div>
+
+          <!-- Card 2: Tetris -->
+          <div class="game-card" data-id="tetris">
+            <div class="game-thumb" style="background: radial-gradient(circle at 50% 50%, #38bdf822 0%, #090d16 100%);">
+              <div class="game-thumb-icon" style="background: #38bdf818; border: 1px solid #38bdf855; color: #38bdf8;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"></rect></svg>
+              </div>
+              <div class="game-featured-badge">★ Featured</div>
+              <button class="game-fav-btn" title="Favorite"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></button>
+            </div>
+            <div class="game-card-body">
+              <div class="game-meta"><span class="cat">Classic</span><span>·</span><span class="rating">★ 4.9</span><span>·</span><span class="tabular-nums">312K plays</span></div>
+              <div class="game-title">Tetra Blocks</div>
+              <div class="game-desc">The timeless falling blocks puzzle. Rotate shapes, plan drop placements, clear multiple lines, and aim for maximum score.</div>
+              <div class="game-footer"><div class="game-tags"><span>Classic</span><span>/</span><span>Puzzle</span></div><div class="game-actions"><button class="btn-card-iframe">&lt;iframe&gt;</button><button class="btn-card-play">Play</button></div></div>
+            </div>
+          </div>
+
+          <!-- Card 3: 2048 -->
+          <div class="game-card" data-id="2048">
+            <div class="game-thumb" style="background: radial-gradient(circle at 50% 50%, #f59e0b22 0%, #090d16 100%);">
+              <div class="game-thumb-icon" style="background: #f59e0b18; border: 1px solid #f59e0b55; color: #f59e0b;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"></rect></svg>
+              </div>
+              <div class="game-featured-badge">★ Featured</div>
+              <button class="game-fav-btn" title="Favorite"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></button>
+            </div>
+            <div class="game-card-body">
+              <div class="game-meta"><span class="cat">Puzzle</span><span>·</span><span class="rating">★ 4.8</span><span>·</span><span class="tabular-nums">194K plays</span></div>
+              <div class="game-title">2048 Puzzle</div>
+              <div class="game-desc">Slide matching numbered tiles across a 4x4 grid. Merge 2s into 4s, 8s into 16s, and climb your way to 2048.</div>
+              <div class="game-footer"><div class="game-tags"><span>Puzzle</span><span>/</span><span>Numbers</span></div><div class="game-actions"><button class="btn-card-iframe">&lt;iframe&gt;</button><button class="btn-card-play">Play</button></div></div>
+            </div>
+          </div>
+
+          <!-- Card 4: Flappy -->
+          <div class="game-card" data-id="flappy">
+            <div class="game-thumb" style="background: radial-gradient(circle at 50% 50%, #38bdf822 0%, #090d16 100%);">
+              <div class="game-thumb-icon" style="background: #38bdf818; border: 1px solid #38bdf855; color: #38bdf8;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"></rect></svg>
+              </div>
+              <button class="game-fav-btn" title="Favorite"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></button>
+            </div>
+            <div class="game-card-body">
+              <div class="game-meta"><span class="cat">Skill</span><span>·</span><span class="rating">★ 4.7</span><span>·</span><span class="tabular-nums">285K plays</span></div>
+              <div class="game-title">Flappy Aviator</div>
+              <div class="game-desc">Timing and touch are everything. Flap your wings through narrow obstacles and see how far you can fly without crashing.</div>
+              <div class="game-footer"><div class="game-tags"><span>Skill</span><span>/</span><span>Endless</span></div><div class="game-actions"><button class="btn-card-iframe">&lt;iframe&gt;</button><button class="btn-card-play">Play</button></div></div>
+            </div>
+          </div>
+
+          <!-- Card 5: Space Invaders -->
+          <div class="game-card" data-id="space-invaders">
+            <div class="game-thumb" style="background: radial-gradient(circle at 50% 50%, #a855f722 0%, #090d16 100%);">
+              <div class="game-thumb-icon" style="background: #a855f718; border: 1px solid #a855f755; color: #a855f7;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"></rect></svg>
+              </div>
+              <div class="game-featured-badge">★ Featured</div>
+              <button class="game-fav-btn" title="Favorite"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></button>
+            </div>
+            <div class="game-card-body">
+              <div class="game-meta"><span class="cat">Action</span><span>·</span><span class="rating">★ 4.8</span><span>·</span><span class="tabular-nums">162K plays</span></div>
+              <div class="game-title">Space Blaster</div>
+              <div class="game-desc">Command your starship defense cannon against descending waves of hostile alien invaders before they overwhelm your sector.</div>
+              <div class="game-footer"><div class="game-tags"><span>Action</span><span>/</span><span>Shooter</span></div><div class="game-actions"><button class="btn-card-iframe">&lt;iframe&gt;</button><button class="btn-card-play">Play</button></div></div>
+            </div>
+          </div>
+
+          <!-- Card 6: Breakout -->
+          <div class="game-card" data-id="breakout">
+            <div class="game-thumb" style="background: radial-gradient(circle at 50% 50%, #f59e0b22 0%, #090d16 100%);">
+              <div class="game-thumb-icon" style="background: #f59e0b18; border: 1px solid #f59e0b55; color: #f59e0b;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"></rect></svg>
+              </div>
+              <button class="game-fav-btn" title="Favorite"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></button>
+            </div>
+            <div class="game-card-body">
+              <div class="game-meta"><span class="cat">Arcade</span><span>·</span><span class="rating">★ 4.8</span><span>·</span><span class="tabular-nums">178K plays</span></div>
+              <div class="game-title">Brick Breaker</div>
+              <div class="game-desc">Deflect the high-velocity energy sphere with your paddle to shatter fortified brick layouts and advance through challenging stages.</div>
+              <div class="game-footer"><div class="game-tags"><span>Arcade</span><span>/</span><span>Physics</span></div><div class="game-actions"><button class="btn-card-iframe">&lt;iframe&gt;</button><button class="btn-card-play">Play</button></div></div>
+            </div>
+          </div>
+
+          <!-- Card 7: Dino Runner -->
+          <div class="game-card" data-id="dino-runner">
+            <div class="game-thumb" style="background: radial-gradient(circle at 50% 50%, #10b98122 0%, #090d16 100%);">
+              <div class="game-thumb-icon" style="background: #10b98118; border: 1px solid #10b98155; color: #10b981;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"></rect></svg>
+              </div>
+              <div class="game-featured-badge">★ Featured</div>
+              <button class="game-fav-btn" title="Favorite"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></button>
+            </div>
+            <div class="game-card-body">
+              <div class="game-meta"><span class="cat">Skill</span><span>·</span><span class="rating">★ 4.9</span><span>·</span><span class="tabular-nums">410K plays</span></div>
+              <div class="game-title">Chrome Dino Runner</div>
+              <div class="game-desc">Sprint through the prehistoric desert, leap across prickly cacti, and duck under flying pterodactyls in this endless runner.</div>
+              <div class="game-footer"><div class="game-tags"><span>Skill</span><span>/</span><span>Runner</span></div><div class="game-actions"><button class="btn-card-iframe">&lt;iframe&gt;</button><button class="btn-card-play">Play</button></div></div>
+            </div>
+          </div>
+
+          <!-- Card 8: Pong -->
+          <div class="game-card" data-id="pong">
+            <div class="game-thumb" style="background: radial-gradient(circle at 50% 50%, #38bdf822 0%, #090d16 100%);">
+              <div class="game-thumb-icon" style="background: #38bdf818; border: 1px solid #38bdf855; color: #38bdf8;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"></rect></svg>
+              </div>
+              <button class="game-fav-btn" title="Favorite"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></button>
+            </div>
+            <div class="game-card-body">
+              <div class="game-meta"><span class="cat">Classic</span><span>·</span><span class="rating">★ 4.7</span><span>·</span><span class="tabular-nums">142K plays</span></div>
+              <div class="game-title">Retro Pong Arena</div>
+              <div class="game-desc">The grandfather of video games. Challenge the CPU on easy or hard modes, or duel against a friend in local two-player mode.</div>
+              <div class="game-footer"><div class="game-tags"><span>Classic</span><span>/</span><span>Sports</span></div><div class="game-actions"><button class="btn-card-iframe">&lt;iframe&gt;</button><button class="btn-card-play">Play</button></div></div>
+            </div>
+          </div>
+
+          <!-- Card 9: Minesweeper -->
+          <div class="game-card" data-id="minesweeper">
+            <div class="game-thumb" style="background: radial-gradient(circle at 50% 50%, #ef444422 0%, #090d16 100%);">
+              <div class="game-thumb-icon" style="background: #ef444418; border: 1px solid #ef444455; color: #ef4444;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"></rect></svg>
+              </div>
+              <button class="game-fav-btn" title="Favorite"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></button>
+            </div>
+            <div class="game-card-body">
+              <div class="game-meta"><span class="cat">Puzzle</span><span>·</span><span class="rating">★ 4.8</span><span>·</span><span class="tabular-nums">153K plays</span></div>
+              <div class="game-title">Minesweeper Classic</div>
+              <div class="game-desc">Uncover numbers, deduce hazardous tile coordinates, and flag every concealed explosive on the board to win without detonating.</div>
+              <div class="game-footer"><div class="game-tags"><span>Puzzle</span><span>/</span><span>Logic</span></div><div class="game-actions"><button class="btn-card-iframe">&lt;iframe&gt;</button><button class="btn-card-play">Play</button></div></div>
+            </div>
+          </div>
+
+          <!-- Card 10: Asteroids -->
+          <div class="game-card" data-id="asteroids">
+            <div class="game-thumb" style="background: radial-gradient(circle at 50% 50%, #38bdf822 0%, #090d16 100%);">
+              <div class="game-thumb-icon" style="background: #38bdf818; border: 1px solid #38bdf855; color: #38bdf8;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"></rect></svg>
+              </div>
+              <button class="game-fav-btn" title="Favorite"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></button>
+            </div>
+            <div class="game-card-body">
+              <div class="game-meta"><span class="cat">Action</span><span>·</span><span class="rating">★ 4.7</span><span>·</span><span class="tabular-nums">129K plays</span></div>
+              <div class="game-title">Asteroids 360</div>
+              <div class="game-desc">Pilot your vector spacecraft with authentic zero-gravity momentum, blast through dense asteroid fields, and avoid collisions.</div>
+              <div class="game-footer"><div class="game-tags"><span>Action</span><span>/</span><span>Physics</span></div><div class="game-actions"><button class="btn-card-iframe">&lt;iframe&gt;</button><button class="btn-card-play">Play</button></div></div>
+            </div>
+          </div>
+
+          <!-- Card 11: Pacmaze -->
+          <div class="game-card" data-id="pacmaze">
+            <div class="game-thumb" style="background: radial-gradient(circle at 50% 50%, #facc1522 0%, #090d16 100%);">
+              <div class="game-thumb-icon" style="background: #facc1518; border: 1px solid #facc1555; color: #facc15;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"></rect></svg>
+              </div>
+              <button class="game-fav-btn" title="Favorite"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></button>
+            </div>
+            <div class="game-card-body">
+              <div class="game-meta"><span class="cat">Arcade</span><span>·</span><span class="rating">★ 4.8</span><span>·</span><span class="tabular-nums">220K plays</span></div>
+              <div class="game-title">Pac-Maze Chaser</div>
+              <div class="game-desc">Navigate labyrinthine corridors, consume all the dots, grab power pellets to turn the tables on patrolling ghosts.</div>
+              <div class="game-footer"><div class="game-tags"><span>Arcade</span><span>/</span><span>Retro</span></div><div class="game-actions"><button class="btn-card-iframe">&lt;iframe&gt;</button><button class="btn-card-play">Play</button></div></div>
+            </div>
+          </div>
+
+          <!-- Card 12: Connect 4 -->
+          <div class="game-card" data-id="connect4">
+            <div class="game-thumb" style="background: radial-gradient(circle at 50% 50%, #3b82f622 0%, #090d16 100%);">
+              <div class="game-thumb-icon" style="background: #3b82f618; border: 1px solid #3b82f655; color: #3b82f6;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"></rect></svg>
+              </div>
+              <button class="game-fav-btn" title="Favorite"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></button>
+            </div>
+            <div class="game-card-body">
+              <div class="game-meta"><span class="cat">Classic</span><span>·</span><span class="rating">★ 4.7</span><span>·</span><span class="tabular-nums">115K plays</span></div>
+              <div class="game-title">Connect Four Tactical</div>
+              <div class="game-desc">Drop discs into vertical slots and create an unbroken line of four chips before the computer or your rival blocks your strategy.</div>
+              <div class="game-footer"><div class="game-tags"><span>Classic</span><span>/</span><span>Strategy</span></div><div class="game-actions"><button class="btn-card-iframe">&lt;iframe&gt;</button><button class="btn-card-play">Play</button></div></div>
+            </div>
+          </div>
         </div>
 
         <!-- Empty State -->
@@ -188,9 +595,7 @@
       </div>
 
       <!-- Stage -->
-      <div id="stage-wrapper" class="stage-wrapper">
-        <!-- Injected dynamically via app.js -->
-      </div>
+      <div id="stage-wrapper" class="stage-wrapper"></div>
 
       <!-- Player Details -->
       <div class="player-info-grid">
@@ -362,7 +767,663 @@
       </div>
     </footer>
 
-    <!-- Scripts: Pure Static JavaScript Entry Point (No Build Step Required on GitHub) -->
-    <script src="./app.js"></script>
+    <!-- Scripts: Pure Static JavaScript Engine (Inlined to prevent any 404 or path resolution errors on GitHub Pages) -->
+    <script>
+      (function () {
+        // Base URL resolver for GitHub Pages subdirectories
+        function resolveGameUrl(relPath) {
+          // If already absolute or data, return
+          if (/^(?:[a-z]+:)?\/\//i.test(relPath) || relPath.startsWith('data:')) return relPath;
+          
+          // Get current directory path
+          var loc = window.location;
+          var dir = loc.pathname;
+          if (!dir.endsWith('/')) {
+            dir = dir.substring(0, dir.lastIndexOf('/') + 1);
+          }
+          // Remove leading ./ or /
+          var cleanRel = relPath.replace(/^(\.\/|\/)/, '');
+          return loc.origin + dir + cleanRel;
+        }
+
+        var DEFAULT_GAMES = [
+          {
+            id: "snake",
+            title: "Retro Snake 8-Bit",
+            category: "Arcade",
+            description: "Navigate the pixel serpent across the grid, gobble glowing energy orbs, and test your reflexes as speed increases.",
+            controls: "Arrow Keys or WASD to turn · Space to pause",
+            rating: 4.9,
+            plays: "248K",
+            featured: true,
+            themeColor: "#10b981",
+            tags: ["Arcade", "Retro", "Reflex"],
+            iframe: '<iframe src="./games/snake.html" title="Retro Snake 8-Bit" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; fullscreen; gamepad"></iframe>'
+          },
+          {
+            id: "tetris",
+            title: "Tetra Blocks",
+            category: "Classic",
+            description: "The timeless falling blocks puzzle. Rotate shapes, plan drop placements, clear multiple lines, and aim for maximum score.",
+            controls: "Left / Right arrows to move · Up to rotate · Down to soft drop · Space to hard drop",
+            rating: 4.9,
+            plays: "312K",
+            featured: true,
+            themeColor: "#38bdf8",
+            tags: ["Classic", "Puzzle", "Logic"],
+            iframe: '<iframe src="./games/tetris.html" title="Tetra Blocks" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; fullscreen; gamepad"></iframe>'
+          },
+          {
+            id: "2048",
+            title: "2048 Puzzle",
+            category: "Puzzle",
+            description: "Slide matching numbered tiles across a 4x4 grid. Merge 2s into 4s, 8s into 16s, and climb your way to the elusive 2048 tile.",
+            controls: "Arrow Keys or Swipe to slide tiles in any direction",
+            rating: 4.8,
+            plays: "194K",
+            featured: true,
+            themeColor: "#f59e0b",
+            tags: ["Puzzle", "Numbers", "Strategy"],
+            iframe: '<iframe src="./games/2048.html" title="2048 Puzzle" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; fullscreen; gamepad"></iframe>'
+          },
+          {
+            id: "flappy",
+            title: "Flappy Aviator",
+            category: "Skill",
+            description: "Timing and touch are everything. Flap your wings through narrow obstacles and see how far you can fly without crashing.",
+            controls: "Spacebar or Left Click / Tap to flap upward",
+            rating: 4.7,
+            plays: "285K",
+            featured: false,
+            themeColor: "#38bdf8",
+            tags: ["Skill", "Endless", "Arcade"],
+            iframe: '<iframe src="./games/flappy.html" title="Flappy Aviator" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; fullscreen; gamepad"></iframe>'
+          },
+          {
+            id: "space-invaders",
+            title: "Space Blaster",
+            category: "Action",
+            description: "Command your starship defense cannon against descending waves of hostile alien invaders before they overwhelm your sector.",
+            controls: "A / D or Arrow Keys to glide · Spacebar to fire lasers",
+            rating: 4.8,
+            plays: "162K",
+            featured: true,
+            themeColor: "#a855f7",
+            tags: ["Action", "Shooter", "Retro"],
+            iframe: '<iframe src="./games/space-invaders.html" title="Space Blaster" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; fullscreen; gamepad"></iframe>'
+          },
+          {
+            id: "breakout",
+            title: "Brick Breaker",
+            category: "Arcade",
+            description: "Deflect the high-velocity energy sphere with your paddle to shatter fortified brick layouts and advance through challenging stages.",
+            controls: "Mouse or A / D / Arrow Keys to position paddle",
+            rating: 4.8,
+            plays: "178K",
+            featured: false,
+            themeColor: "#f59e0b",
+            tags: ["Arcade", "Physics", "Classic"],
+            iframe: '<iframe src="./games/breakout.html" title="Brick Breaker" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; fullscreen; gamepad"></iframe>'
+          },
+          {
+            id: "dino-runner",
+            title: "Chrome Dino Runner",
+            category: "Skill",
+            description: "Sprint through the prehistoric desert, leap across prickly cacti, and duck under flying pterodactyls in this endless runner.",
+            controls: "Space or Up Arrow to jump · Down Arrow to duck",
+            rating: 4.9,
+            plays: "410K",
+            featured: true,
+            themeColor: "#10b981",
+            tags: ["Skill", "Runner", "Endless"],
+            iframe: '<iframe src="./games/dino-runner.html" title="Chrome Dino Runner" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; fullscreen; gamepad"></iframe>'
+          },
+          {
+            id: "pong",
+            title: "Retro Pong Arena",
+            category: "Classic",
+            description: "The grandfather of video games. Challenge the CPU on easy or hard modes, or duel against a friend in local two-player mode.",
+            controls: "Player 1: W / S or Mouse · Player 2: Up / Down Arrows",
+            rating: 4.7,
+            plays: "142K",
+            featured: false,
+            themeColor: "#38bdf8",
+            tags: ["Classic", "2 Player", "Sports"],
+            iframe: '<iframe src="./games/pong.html" title="Retro Pong Arena" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; fullscreen; gamepad"></iframe>'
+          },
+          {
+            id: "minesweeper",
+            title: "Minesweeper Classic",
+            category: "Puzzle",
+            description: "Uncover numbers, deduce hazardous tile coordinates, and flag every concealed explosive on the board to win without detonating.",
+            controls: "Left Click to reveal safe tile · Right Click to place flag",
+            rating: 4.8,
+            plays: "153K",
+            featured: false,
+            themeColor: "#ef4444",
+            tags: ["Puzzle", "Logic", "Strategy"],
+            iframe: '<iframe src="./games/minesweeper.html" title="Minesweeper Classic" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; fullscreen; gamepad"></iframe>'
+          },
+          {
+            id: "asteroids",
+            title: "Asteroids 360",
+            category: "Action",
+            description: "Pilot your vector spacecraft with authentic zero-gravity momentum, blast through dense asteroid fields, and avoid collisions.",
+            controls: "Left / Right to rotate · Up Arrow to thrust · Space to shoot",
+            rating: 4.7,
+            plays: "129K",
+            featured: false,
+            themeColor: "#38bdf8",
+            tags: ["Action", "Physics", "Retro"],
+            iframe: '<iframe src="./games/asteroids.html" title="Asteroids 360" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; fullscreen; gamepad"></iframe>'
+          },
+          {
+            id: "pacmaze",
+            title: "Pac-Maze Chaser",
+            category: "Arcade",
+            description: "Navigate labyrinthine corridors, consume all the dots, grab power pellets to turn the tables on patrolling ghosts.",
+            controls: "Arrow Keys or WASD to navigate maze junctions",
+            rating: 4.8,
+            plays: "220K",
+            featured: false,
+            themeColor: "#facc15",
+            tags: ["Arcade", "Maze", "Retro"],
+            iframe: '<iframe src="./games/pacmaze.html" title="Pac-Maze Chaser" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; fullscreen; gamepad"></iframe>'
+          },
+          {
+            id: "connect4",
+            title: "Connect Four Tactical",
+            category: "Classic",
+            description: "Drop discs into vertical slots and create an unbroken line of four chips before the computer or your rival blocks your strategy.",
+            controls: "Click or Tap column to drop disc",
+            rating: 4.7,
+            plays: "115K",
+            featured: false,
+            themeColor: "#3b82f6",
+            tags: ["Classic", "Board", "Strategy"],
+            iframe: '<iframe src="./games/connect4.html" title="Connect Four Tactical" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; fullscreen; gamepad"></iframe>'
+          }
+        ];
+
+        var games = DEFAULT_GAMES;
+        var currentCategory = 'All';
+        var searchQuery = '';
+        var currentSort = 'featured';
+        var activeGame = null;
+        var favorites = [];
+        var isTheater = false;
+        var isPanic = false;
+
+        // Elements
+        var catalogView = document.getElementById('catalog-view');
+        var playerView = document.getElementById('player-view');
+        var gamesGrid = document.getElementById('games-grid');
+        var emptyState = document.getElementById('empty-state');
+        var gamesCountEl = document.getElementById('games-count');
+        var totalGamesCountEl = document.getElementById('total-games-count');
+        var totalGamesStatEl = document.getElementById('total-games-stat');
+        var categoryFilterLabel = document.getElementById('category-filter-label');
+        var searchInput = document.getElementById('search-input');
+        var clearSearchBtn = document.getElementById('clear-search');
+        var sortSelect = document.getElementById('sort-select');
+        var categoryTabs = document.querySelectorAll('.tab-btn');
+
+        var spotlightTitle = document.getElementById('spotlight-title');
+        var spotlightDesc = document.getElementById('spotlight-desc');
+        var spotlightMeta = document.getElementById('spotlight-meta');
+        var btnPlaySpotlight = document.getElementById('btn-play-spotlight');
+        var btnCodeSpotlight = document.getElementById('btn-code-spotlight');
+
+        var stageWrapper = document.getElementById('stage-wrapper');
+        var playerGameTitle = document.getElementById('player-game-title');
+        var playerGameMeta = document.getElementById('player-game-meta');
+        var playerGameDesc = document.getElementById('player-game-desc');
+        var playerGameControls = document.getElementById('player-game-controls');
+        var playerFavBtn = document.getElementById('player-fav-btn');
+        var playerTheaterBtn = document.getElementById('player-theater-btn');
+        var playerFullscreenBtn = document.getElementById('player-fullscreen-btn');
+        var playerRestartBtn = document.getElementById('player-restart-btn');
+        var playerBackBtn = document.getElementById('player-back-btn');
+        var playerIframeCodeBtn = document.getElementById('player-iframe-code-btn');
+
+        var jsonModal = document.getElementById('json-modal');
+        var jsonCodeView = document.getElementById('json-code-view');
+        var modalTabJson = document.getElementById('modal-tab-json');
+        var modalTabAdd = document.getElementById('modal-tab-add');
+        var modalTabIframe = document.getElementById('modal-tab-iframe');
+        var jsonTabContent = document.getElementById('json-tab-content');
+        var addTabContent = document.getElementById('add-tab-content');
+        var iframeTabContent = document.getElementById('iframe-tab-content');
+        var singleIframeString = document.getElementById('single-iframe-string');
+        var singleJsonView = document.getElementById('single-json-view');
+        var btnCopyJson = document.getElementById('btn-copy-json');
+        var btnDownloadJson = document.getElementById('btn-download-json');
+        var btnCopySingleIframe = document.getElementById('btn-copy-single-iframe');
+        var addGameForm = document.getElementById('add-game-form');
+
+        var panicScreen = document.getElementById('panic-screen');
+        var btnPanic = document.getElementById('btn-panic');
+        var btnResumePanic = document.getElementById('btn-resume-panic');
+
+        try {
+          var savedFavs = localStorage.getItem('firestudeo_favorites');
+          if (savedFavs) favorites = JSON.parse(savedFavs);
+        } catch (e) { favorites = []; }
+
+        function getCustomGames() {
+          try {
+            var c = localStorage.getItem('firestudeo_custom_games');
+            return c ? JSON.parse(c) : [];
+          } catch (e) { return []; }
+        }
+
+        // Try background fetch for live games.json without blocking UI
+        fetch('./games.json').then(function(res) {
+          if (!res.ok) throw new Error();
+          return res.json();
+        }).then(function(data) {
+          if (Array.isArray(data) && data.length > 0) {
+            var custom = getCustomGames();
+            games = custom.concat(data);
+            updateCounts();
+            render();
+          }
+        }).catch(function() {
+          // If fetch fails (e.g. file:// CORS), DEFAULT_GAMES is already loaded!
+        });
+
+        // Initialize with default + custom games immediately
+        var initialCustom = getCustomGames();
+        games = initialCustom.concat(DEFAULT_GAMES);
+
+        function updateCounts() {
+          if (totalGamesCountEl) totalGamesCountEl.textContent = games.length + ' games indexed';
+          if (totalGamesStatEl) totalGamesStatEl.textContent = games.length;
+        }
+        updateCounts();
+
+        function setupSpotlight() {
+          var spotlight = games.find(function(g) { return g.featured; }) || games[0];
+          if (!spotlight) return;
+          if (spotlightTitle) spotlightTitle.textContent = spotlight.title;
+          if (spotlightDesc) spotlightDesc.textContent = spotlight.description;
+          if (spotlightMeta) spotlightMeta.textContent = spotlight.category + ' · ★ ' + spotlight.rating + ' · ' + spotlight.plays + ' plays';
+          if (btnPlaySpotlight) btnPlaySpotlight.onclick = function() { openGame(spotlight); };
+          if (btnCodeSpotlight) btnCodeSpotlight.onclick = function() { openIframeModal(spotlight); };
+        }
+        setupSpotlight();
+
+        function render() {
+          var filtered = games.filter(function(g) {
+            if (currentCategory === 'Favorites') {
+              if (favorites.indexOf(g.id) === -1) return false;
+            } else if (currentCategory !== 'All') {
+              if (g.category !== currentCategory) return false;
+            }
+            if (searchQuery.trim()) {
+              var q = searchQuery.toLowerCase();
+              var inT = g.title.toLowerCase().indexOf(q) !== -1;
+              var inC = g.category.toLowerCase().indexOf(q) !== -1;
+              var inD = g.description.toLowerCase().indexOf(q) !== -1;
+              var inTags = g.tags && g.tags.some(function(t) { return t.toLowerCase().indexOf(q) !== -1; });
+              if (!inT && !inC && !inD && !inTags) return false;
+            }
+            return true;
+          });
+
+          filtered.sort(function(a, b) {
+            if (currentSort === 'featured') return (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
+            if (currentSort === 'plays') return (parseInt(b.plays) || 0) - (parseInt(a.plays) || 0);
+            if (currentSort === 'rating') return b.rating - a.rating;
+            if (currentSort === 'title') return a.title.localeCompare(b.title);
+            return 0;
+          });
+
+          gamesGrid.innerHTML = '';
+          if (filtered.length === 0) {
+            gamesGrid.style.display = 'none';
+            emptyState.style.display = 'block';
+          } else {
+            gamesGrid.style.display = 'grid';
+            emptyState.style.display = 'none';
+
+            filtered.forEach(function(game) {
+              var isFav = favorites.indexOf(game.id) !== -1;
+              var card = document.createElement('div');
+              card.className = 'game-card';
+              card.dataset.id = game.id;
+              card.innerHTML = [
+                '<div class="game-thumb" style="background: radial-gradient(circle at 50% 50%, ' + game.themeColor + '22 0%, #090d16 100%);">',
+                '  <div class="game-thumb-icon" style="background: ' + game.themeColor + '18; border: 1px solid ' + game.themeColor + '55; color: ' + game.themeColor + ';">',
+                '    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"></rect></svg>',
+                '  </div>',
+                game.featured ? '  <div class="game-featured-badge">★ Featured</div>' : '',
+                '  <button class="game-fav-btn ' + (isFav ? 'active' : '') + '" title="Favorite">',
+                '    <svg width="15" height="15" viewBox="0 0 24 24" fill="' + (isFav ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>',
+                '  </button>',
+                '</div>',
+                '<div class="game-card-body">',
+                '  <div class="game-meta"><span class="cat">' + game.category + '</span><span>·</span><span class="rating">★ ' + game.rating.toFixed(1) + '</span><span>·</span><span class="tabular-nums">' + game.plays + ' plays</span></div>',
+                '  <div class="game-title">' + game.title + '</div>',
+                '  <div class="game-desc">' + game.description + '</div>',
+                '  <div class="game-footer">',
+                '    <div class="game-tags">' + ((game.tags || []).slice(0, 2).map(function(t, idx) { return (idx > 0 ? '<span>/</span>' : '') + '<span>' + t + '</span>'; }).join('')) + '</div>',
+                '    <div class="game-actions">',
+                '      <button class="btn-card-iframe">&lt;iframe&gt;</button>',
+                '      <button class="btn-card-play">Play</button>',
+                '    </div>',
+                '  </div>',
+                '</div>'
+              ].join('');
+
+              card.querySelector('.game-thumb').onclick = function(e) {
+                if (!e.target.closest('.game-fav-btn')) openGame(game);
+              };
+              card.querySelector('.game-title').onclick = function() { openGame(game); };
+              card.querySelector('.btn-card-play').onclick = function() { openGame(game); };
+              card.querySelector('.game-fav-btn').onclick = function(e) {
+                e.stopPropagation();
+                toggleFavorite(game.id);
+              };
+              card.querySelector('.btn-card-iframe').onclick = function(e) {
+                e.stopPropagation();
+                openIframeModal(game);
+              };
+
+              gamesGrid.appendChild(card);
+            });
+          }
+
+          if (gamesCountEl) gamesCountEl.textContent = filtered.length;
+          if (categoryFilterLabel) categoryFilterLabel.textContent = currentCategory !== 'All' ? ' in ' + currentCategory : '';
+        }
+
+        // Attach listeners to pre-rendered cards
+        function attachInitialCardListeners() {
+          var cards = document.querySelectorAll('.game-card');
+          cards.forEach(function(card) {
+            var id = card.dataset.id;
+            var game = games.find(function(g) { return g.id === id; });
+            if (!game) return;
+
+            var thumb = card.querySelector('.game-thumb');
+            if (thumb) thumb.onclick = function(e) {
+              if (!e.target.closest('.game-fav-btn')) openGame(game);
+            };
+            var title = card.querySelector('.game-title');
+            if (title) title.onclick = function() { openGame(game); };
+            var play = card.querySelector('.btn-card-play');
+            if (play) play.onclick = function() { openGame(game); };
+            var fav = card.querySelector('.game-fav-btn');
+            if (fav) fav.onclick = function(e) {
+              e.stopPropagation();
+              toggleFavorite(game.id);
+            };
+            var iframeBtn = card.querySelector('.btn-card-iframe');
+            if (iframeBtn) iframeBtn.onclick = function(e) {
+              e.stopPropagation();
+              openIframeModal(game);
+            };
+          });
+        }
+        attachInitialCardListeners();
+
+        function toggleFavorite(id) {
+          var idx = favorites.indexOf(id);
+          if (idx !== -1) favorites.splice(idx, 1);
+          else favorites.push(id);
+          try { localStorage.setItem('firestudeo_favorites', JSON.stringify(favorites)); } catch (e) {}
+          render();
+          if (activeGame && activeGame.id === id) updatePlayerFavBtn();
+        }
+
+        function openGame(game) {
+          activeGame = game;
+          catalogView.style.display = 'none';
+          playerView.style.display = 'block';
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+
+          playerGameTitle.textContent = game.title;
+          playerGameMeta.innerHTML = '<span style="font-weight:600; color:#cbd5e1;">' + game.category + '</span> · <span style="color:#f59e0b; font-weight:600;">★ ' + game.rating.toFixed(1) + '</span> · <span class="tabular-nums">' + game.plays + ' plays</span>';
+          playerGameDesc.textContent = game.description;
+          playerGameControls.textContent = game.controls;
+
+          updatePlayerFavBtn();
+          renderIframe(game.iframe);
+        }
+
+        function renderIframe(iframeCode) {
+          stageWrapper.innerHTML = '';
+          var srcMatch = iframeCode.match(/src=["']([^"']+)["']/i);
+          var iframe = document.createElement('iframe');
+          iframe.allowFullscreen = true;
+          iframe.setAttribute('allow', 'autoplay; fullscreen; gamepad; focus-without-user-activation *');
+          if (srcMatch) {
+            var rawSrc = srcMatch[1];
+            iframe.src = resolveGameUrl(rawSrc);
+          } else {
+            iframe.srcdoc = iframeCode;
+          }
+          stageWrapper.appendChild(iframe);
+        }
+
+        function closeGame() {
+          activeGame = null;
+          stageWrapper.innerHTML = '';
+          playerView.style.display = 'none';
+          catalogView.style.display = 'block';
+          render();
+        }
+
+        function updatePlayerFavBtn() {
+          if (!activeGame) return;
+          var isFav = favorites.indexOf(activeGame.id) !== -1;
+          playerFavBtn.style.color = isFav ? '#f59e0b' : '#94a3b8';
+          playerFavBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="' + (isFav ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg><span>' + (isFav ? 'Favorited' : 'Favorite') + '</span>';
+        }
+
+        function openJsonModal() {
+          jsonModal.classList.add('active');
+          modalTabJson.classList.add('active');
+          modalTabAdd.classList.remove('active');
+          if (modalTabIframe) modalTabIframe.style.display = 'none';
+          jsonTabContent.style.display = 'block';
+          addTabContent.style.display = 'none';
+          if (iframeTabContent) iframeTabContent.style.display = 'none';
+          jsonCodeView.textContent = JSON.stringify(games, null, 2);
+        }
+
+        function openIframeModal(game) {
+          jsonModal.classList.add('active');
+          modalTabJson.classList.remove('active');
+          modalTabAdd.classList.remove('active');
+          if (modalTabIframe) {
+            modalTabIframe.style.display = 'inline-block';
+            modalTabIframe.classList.add('active');
+          }
+          jsonTabContent.style.display = 'none';
+          addTabContent.style.display = 'none';
+          if (iframeTabContent) iframeTabContent.style.display = 'block';
+          singleIframeString.textContent = game.iframe;
+          singleJsonView.textContent = JSON.stringify(game, null, 2);
+        }
+
+        function closeJsonModal() { jsonModal.classList.remove('active'); }
+
+        function togglePanic() {
+          isPanic = !isPanic;
+          if (isPanic) {
+            document.title = 'Unit 4 Assignment: World History Notes - Google Docs';
+            panicScreen.classList.add('active');
+          } else {
+            document.title = 'firestudeo - Unblocked Games Hub';
+            panicScreen.classList.remove('active');
+          }
+        }
+
+        categoryTabs.forEach(function(tab) {
+          tab.addEventListener('click', function() {
+            categoryTabs.forEach(function(t) { t.classList.remove('active'); });
+            tab.classList.add('active');
+            currentCategory = tab.dataset.category;
+            render();
+          });
+        });
+
+        if (searchInput) {
+          searchInput.addEventListener('input', function(e) {
+            searchQuery = e.target.value;
+            if (clearSearchBtn) clearSearchBtn.style.display = searchQuery ? 'block' : 'none';
+            render();
+          });
+        }
+
+        if (clearSearchBtn) {
+          clearSearchBtn.addEventListener('click', function() {
+            searchQuery = '';
+            if (searchInput) searchInput.value = '';
+            clearSearchBtn.style.display = 'none';
+            render();
+          });
+        }
+
+        if (sortSelect) {
+          sortSelect.addEventListener('change', function(e) {
+            currentSort = e.target.value;
+            render();
+          });
+        }
+
+        var navJsonBtn = document.getElementById('nav-json-btn');
+        if (navJsonBtn) navJsonBtn.onclick = openJsonModal;
+
+        var btnAddGame = document.getElementById('btn-add-game');
+        if (btnAddGame) btnAddGame.onclick = function() {
+          openJsonModal();
+          modalTabAdd.click();
+        };
+
+        var btnRandomGame = document.getElementById('btn-random-game');
+        if (btnRandomGame) btnRandomGame.onclick = function() {
+          if (games.length > 0) {
+            var rand = games[Math.floor(Math.random() * games.length)];
+            openGame(rand);
+          }
+        };
+
+        if (btnPanic) btnPanic.onclick = togglePanic;
+        if (btnResumePanic) btnResumePanic.onclick = togglePanic;
+
+        if (playerBackBtn) playerBackBtn.onclick = closeGame;
+        if (playerRestartBtn) playerRestartBtn.onclick = function() {
+          if (activeGame) renderIframe(activeGame.iframe);
+        };
+        if (playerTheaterBtn) playerTheaterBtn.onclick = function() {
+          isTheater = !isTheater;
+          stageWrapper.classList.toggle('theater', isTheater);
+          playerTheaterBtn.querySelector('span').textContent = isTheater ? 'Default View' : 'Theater';
+        };
+        if (playerFullscreenBtn) playerFullscreenBtn.onclick = function() {
+          if (!document.fullscreenElement) stageWrapper.requestFullscreen().catch(function() {});
+          else document.exitFullscreen().catch(function() {});
+        };
+        if (playerFavBtn) playerFavBtn.onclick = function() {
+          if (activeGame) toggleFavorite(activeGame.id);
+        };
+        if (playerIframeCodeBtn) playerIframeCodeBtn.onclick = function() {
+          if (activeGame) openIframeModal(activeGame);
+        };
+
+        if (modalTabJson) modalTabJson.onclick = function() {
+          modalTabJson.classList.add('active');
+          modalTabAdd.classList.remove('active');
+          if (modalTabIframe) modalTabIframe.classList.remove('active');
+          jsonTabContent.style.display = 'block';
+          addTabContent.style.display = 'none';
+          if (iframeTabContent) iframeTabContent.style.display = 'none';
+        };
+
+        if (modalTabAdd) modalTabAdd.onclick = function() {
+          modalTabAdd.classList.add('active');
+          modalTabJson.classList.remove('active');
+          if (modalTabIframe) modalTabIframe.classList.remove('active');
+          jsonTabContent.style.display = 'none';
+          addTabContent.style.display = 'block';
+          if (iframeTabContent) iframeTabContent.style.display = 'none';
+        };
+
+        var modalCloseBtn = document.getElementById('modal-close-btn');
+        if (modalCloseBtn) modalCloseBtn.onclick = closeJsonModal;
+
+        if (btnCopyJson) btnCopyJson.onclick = function() {
+          navigator.clipboard.writeText(JSON.stringify(games, null, 2));
+          btnCopyJson.textContent = 'Copied!';
+          setTimeout(function() { btnCopyJson.textContent = 'Copy JSON'; }, 1800);
+        };
+
+        if (btnDownloadJson) btnDownloadJson.onclick = function() {
+          var blob = new Blob([JSON.stringify(games, null, 2)], { type: 'application/json' });
+          var url = URL.createObjectURL(blob);
+          var a = document.createElement('a');
+          a.href = url;
+          a.download = 'games.json';
+          a.click();
+          URL.revokeObjectURL(url);
+        };
+
+        if (btnCopySingleIframe) btnCopySingleIframe.onclick = function() {
+          navigator.clipboard.writeText(singleIframeString.textContent);
+          btnCopySingleIframe.textContent = 'Copied!';
+          setTimeout(function() { btnCopySingleIframe.textContent = 'Copy Iframe'; }, 1800);
+        };
+
+        if (addGameForm) addGameForm.onsubmit = function(e) {
+          e.preventDefault();
+          var title = document.getElementById('new-game-title').value.trim();
+          var cat = document.getElementById('new-game-category').value;
+          var desc = document.getElementById('new-game-desc').value.trim();
+          var controls = document.getElementById('new-game-controls').value.trim();
+          var iframeHtml = document.getElementById('new-game-iframe').value.trim();
+
+          if (!title || iframeHtml.indexOf('<iframe') === -1) {
+            alert('Please provide a valid Title and <iframe> tag.');
+            return;
+          }
+
+          var newGame = {
+            id: 'custom-' + Date.now(),
+            title: title,
+            category: cat,
+            description: desc || 'Custom unblocked community game.',
+            controls: controls || 'Mouse or Keyboard',
+            rating: 4.8,
+            plays: '1K',
+            themeColor: '#38bdf8',
+            tags: [cat, 'Custom'],
+            iframe: iframeHtml
+          };
+
+          var custom = getCustomGames();
+          custom.unshift(newGame);
+          try { localStorage.setItem('firestudeo_custom_games', JSON.stringify(custom)); } catch (err) {}
+          games.unshift(newGame);
+          addGameForm.reset();
+          closeJsonModal();
+          render();
+          openGame(newGame);
+        };
+
+        window.addEventListener('keydown', function(e) {
+          if (e.key === '[') togglePanic();
+          else if (e.key === '/' && document.activeElement !== searchInput) {
+            e.preventDefault();
+            if (searchInput) searchInput.focus();
+          } else if (e.key === 'Escape') {
+            if (jsonModal && jsonModal.classList.contains('active')) closeJsonModal();
+            if (isPanic) togglePanic();
+          }
+        });
+      })();
+    </script>
   </body>
 </html>
