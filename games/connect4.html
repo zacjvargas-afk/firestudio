@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Connect Four</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      background: #090d16;
+      color: #f1f5f9;
+      font-family: 'JetBrains Mono', monospace, -apple-system, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+      padding: 10px;
+    }
+    .hud {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 440px;
+      padding: 10px 16px;
+      font-size: 14px;
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 8px 8px 0 0;
+    }
+    .status { font-weight: bold; color: #ef4444; }
+    .btn {
+      padding: 6px 14px;
+      background: #3b82f6;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .btn:hover { background: #60a5fa; }
+    .board-wrap {
+      background: #1e3a8a;
+      padding: 14px;
+      border-radius: 0 0 10px 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      display: inline-block;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(7, 48px);
+      grid-template-rows: repeat(6, 48px);
+      gap: 8px;
+    }
+    .slot {
+      width: 48px;
+      height: 48px;
+      background: #0f172a;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: inset 0 3px 6px rgba(0,0,0,0.8);
+      transition: background 0.15s ease;
+    }
+    .slot:hover { background: #1e293b; }
+    .slot.p1 { background: #ef4444; box-shadow: 0 0 10px #ef4444; }
+    .slot.p2 { background: #facc15; box-shadow: 0 0 10px #facc15; }
+    .slot.win { animation: pulse 0.8s infinite alternate; }
+    @keyframes pulse { from { transform: scale(0.9); } to { transform: scale(1.1); } }
+    .hint { margin-top: 10px; font-size: 11px; color: #64748b; }
+  </style>
+</head>
+<body>
+  <div class="hud">
+    <div id="status" class="status">RED'S TURN</div>
+    <div style="display: flex; gap: 8px;">
+      <button id="mode-btn" class="btn" style="background: #334155;">VS CPU</button>
+      <button id="reset-btn" class="btn">RESET</button>
+    </div>
+  </div>
+
+  <div class="board-wrap">
+    <div class="board" id="board"></div>
+  </div>
+  <div class="hint">Click any column to drop your token</div>
+
+  <script>
+    const ROWS = 6;
+    const COLS = 7;
+    let grid = Array(ROWS).fill(null).map(() => Array(COLS).fill(0));
+    let turn = 1; // 1 = Red, 2 = Yellow
+    let vsCpu = true;
+    let gameOver = false;
+
+    const boardEl = document.getElementById('board');
+    const statusEl = document.getElementById('status');
+    const resetBtn = document.getElementById('reset-btn');
+    const modeBtn = document.getElementById('mode-btn');
+
+    function init() {
+      grid = Array(ROWS).fill(null).map(() => Array(COLS).fill(0));
+      turn = 1;
+      gameOver = false;
+      statusEl.textContent = "RED'S TURN";
+      statusEl.style.color = '#ef4444';
+      render();
+    }
+
+    function render() {
+      boardEl.innerHTML = '';
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          const slot = document.createElement('div');
+          slot.className = 'slot';
+          if (grid[r][c] === 1) slot.classList.add('p1');
+          if (grid[r][c] === 2) slot.classList.add('p2');
+          slot.addEventListener('click', () => drop(c));
+          boardEl.appendChild(slot);
+        }
+      }
+    }
+
+    function drop(col) {
+      if (gameOver) return;
+      // find lowest empty row
+      let row = -1;
+      for (let r = ROWS - 1; r >= 0; r--) {
+        if (grid[r][col] === 0) {
+          row = r;
+          break;
+        }
+      }
+      if (row === -1) return; // Column full
+
+      grid[row][col] = turn;
+      render();
+
+      if (checkWin(row, col, turn)) {
+        gameOver = true;
+        statusEl.textContent = (turn === 1 ? 'RED' : 'YELLOW') + ' WINS!';
+        statusEl.style.color = turn === 1 ? '#ef4444' : '#facc15';
+        return;
+      }
+
+      turn = turn === 1 ? 2 : 1;
+      statusEl.textContent = (turn === 1 ? "RED'S TURN" : "YELLOW'S TURN");
+      statusEl.style.color = turn === 1 ? '#ef4444' : '#facc15';
+
+      if (vsCpu && turn === 2 && !gameOver) {
+        setTimeout(cpuMove, 300);
+      }
+    }
+
+    function cpuMove() {
+      // Find valid columns
+      const validCols = [];
+      for (let c = 0; c < COLS; c++) {
+        if (grid[0][c] === 0) validCols.push(c);
+      }
+      if (validCols.length === 0) return;
+
+      // Try win or block
+      for (let c of validCols) {
+        let r = getLowestRow(c);
+        grid[r][c] = 2;
+        if (checkWin(r, c, 2)) {
+          grid[r][c] = 0;
+          return drop(c);
+        }
+        grid[r][c] = 0;
+      }
+
+      for (let c of validCols) {
+        let r = getLowestRow(c);
+        grid[r][c] = 1;
+        if (checkWin(r, c, 1)) {
+          grid[r][c] = 0;
+          return drop(c);
+        }
+        grid[r][c] = 0;
+      }
+
+      // Pick center prioritized
+      validCols.sort((a, b) => Math.abs(a - 3) - Math.abs(b - 3));
+      drop(validCols[0]);
+    }
+
+    function getLowestRow(col) {
+      for (let r = ROWS - 1; r >= 0; r--) {
+        if (grid[r][col] === 0) return r;
+      }
+      return -1;
+    }
+
+    function checkWin(r, c, player) {
+      function count(dr, dc) {
+        let cnt = 0;
+        let nr = r + dr;
+        let nc = c + dc;
+        while (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS && grid[nr][nc] === player) {
+          cnt++;
+          nr += dr;
+          nc += dc;
+        }
+        return cnt;
+      }
+
+      // Horizontal, vertical, diagonals
+      if (count(0, 1) + count(0, -1) >= 3) return true;
+      if (count(1, 0) + count(-1, 0) >= 3) return true;
+      if (count(1, 1) + count(-1, -1) >= 3) return true;
+      if (count(1, -1) + count(-1, 1) >= 3) return true;
+      return false;
+    }
+
+    resetBtn.addEventListener('click', init);
+    modeBtn.addEventListener('click', () => {
+      vsCpu = !vsCpu;
+      modeBtn.textContent = vsCpu ? 'VS CPU' : '2 PLAYER';
+      init();
+    });
+
+    init();
+  </script>
+</body>
+</html>

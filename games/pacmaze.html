@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Pac Maze</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      background: #090d16;
+      color: #f1f5f9;
+      font-family: 'JetBrains Mono', monospace, -apple-system, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+      padding: 10px;
+    }
+    .hud {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 440px;
+      padding: 8px 16px;
+      font-size: 13px;
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 8px 8px 0 0;
+    }
+    .hud-label { color: #94a3b8; font-size: 11px; }
+    .hud-val { color: #facc15; font-weight: bold; }
+    #wrap {
+      position: relative;
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 0 0 8px 8px;
+    }
+    canvas { display: block; }
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.88);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      backdrop-filter: blur(4px);
+    }
+    .title { font-size: 26px; font-weight: 800; color: #facc15; }
+    .btn {
+      padding: 10px 24px;
+      background: #facc15;
+      color: #020617;
+      border: none;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .btn:hover { background: #fde047; }
+    .hint { margin-top: 10px; font-size: 11px; color: #64748b; }
+    .key { background: #1e293b; padding: 2px 6px; border-radius: 4px; color: #cbd5e1; }
+  </style>
+</head>
+<body>
+  <div class="hud">
+    <div><span class="hud-label">Score: </span><span id="score" class="hud-val">0</span></div>
+    <div><span class="hud-label">Lives: </span><span id="lives" class="hud-val">3</span></div>
+  </div>
+
+  <div id="wrap">
+    <canvas id="c" width="440" height="440"></canvas>
+    <div id="overlay" class="overlay">
+      <div id="overlay-title" class="title">PAC MAZE</div>
+      <div id="overlay-msg" style="color: #94a3b8; font-size: 13px;">Eat all dots and evade the ghosts!</div>
+      <button id="start-btn" class="btn">START</button>
+    </div>
+  </div>
+
+  <div class="hint">Use <span class="key">WASD</span> or <span class="key">Arrows</span> to turn</div>
+
+  <script>
+    const canvas = document.getElementById('c');
+    const ctx = canvas.getContext('2d');
+    const scoreEl = document.getElementById('score');
+    const livesEl = document.getElementById('lives');
+    const overlay = document.getElementById('overlay');
+    const overlayTitle = document.getElementById('overlay-title');
+    const overlayMsg = document.getElementById('overlay-msg');
+    const startBtn = document.getElementById('start-btn');
+
+    const MAP = [
+      [1,1,1,1,1,1,1,1,1,1,1],
+      [1,2,2,2,1,2,2,2,2,2,1],
+      [1,3,1,2,1,2,1,1,1,2,1],
+      [1,2,1,2,2,2,2,2,1,2,1],
+      [1,2,1,1,0,0,1,2,1,2,1],
+      [1,2,2,2,0,0,2,2,2,2,1],
+      [1,2,1,1,1,1,1,2,1,2,1],
+      [1,2,2,2,2,2,2,2,1,2,1],
+      [1,3,1,1,2,1,1,2,1,3,1],
+      [1,2,2,2,2,2,2,2,2,2,1],
+      [1,1,1,1,1,1,1,1,1,1,1]
+    ];
+
+    const TILE = 40;
+    let grid = [];
+    let player = { x: 5, y: 7, dirX: 0, dirY: 0, nextX: 0, nextY: 0, mouth: 0.2 };
+    let ghosts = [];
+    let score = 0;
+    let lives = 3;
+    let running = false;
+    let powerTimer = 0;
+
+    function reset() {
+      grid = MAP.map(r => [...r]);
+      player = { x: 5, y: 7, dirX: 0, dirY: 0, nextX: 0, nextY: 0, mouth: 0.2 };
+      ghosts = [
+        { x: 4, y: 4, color: '#ef4444', dirX: 0, dirY: -1 },
+        { x: 5, y: 4, color: '#06b6d4', dirX: 1, dirY: 0 },
+        { x: 4, y: 5, color: '#f43f5e', dirX: -1, dirY: 0 }
+      ];
+      score = 0;
+      lives = 3;
+      powerTimer = 0;
+      scoreEl.textContent = '0';
+      livesEl.textContent = '3';
+      running = true;
+      overlay.style.display = 'none';
+    }
+
+    function canMove(gx, gy) {
+      if (gx < 0 || gx >= 11 || gy < 0 || gy >= 11) return false;
+      return grid[gy][gx] !== 1;
+    }
+
+    let tick = 0;
+    function update() {
+      if (!running) return;
+      tick++;
+
+      if (tick % 10 === 0) {
+        // Player turn
+        if (canMove(player.x + player.nextX, player.y + player.nextY)) {
+          player.dirX = player.nextX;
+          player.dirY = player.nextY;
+        }
+
+        if (canMove(player.x + player.dirX, player.y + player.dirY)) {
+          player.x += player.dirX;
+          player.y += player.dirY;
+        }
+
+        // Eat pellet
+        if (grid[player.y][player.x] === 2) {
+          grid[player.y][player.x] = 0;
+          score += 10;
+          scoreEl.textContent = score;
+        } else if (grid[player.y][player.x] === 3) {
+          grid[player.y][player.x] = 0;
+          score += 50;
+          scoreEl.textContent = score;
+          powerTimer = 50;
+        }
+
+        if (powerTimer > 0) powerTimer--;
+
+        // Check if all dots eaten
+        let dots = 0;
+        for (let r = 0; r < 11; r++) {
+          for (let c = 0; c < 11; c++) {
+            if (grid[r][c] === 2 || grid[r][c] === 3) dots++;
+          }
+        }
+        if (dots === 0) {
+          running = false;
+          overlayTitle.textContent = 'MAZE CLEARED!';
+          overlayMsg.textContent = 'Score: ' + score;
+          startBtn.textContent = 'PLAY AGAIN';
+          overlay.style.display = 'flex';
+          return;
+        }
+
+        // Ghost AI
+        ghosts.forEach(g => {
+          const dirs = [
+            { x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }
+          ].filter(d => canMove(g.x + d.x, g.y + d.y) && !(d.x === -g.dirX && d.y === -g.dirY));
+
+          if (dirs.length > 0) {
+            const chosen = dirs[Math.floor(Math.random() * dirs.length)];
+            g.dirX = chosen.x;
+            g.dirY = chosen.y;
+          }
+          g.x += g.dirX;
+          g.y += g.dirY;
+
+          // Collision
+          if (g.x === player.x && g.y === player.y) {
+            if (powerTimer > 0) {
+              g.x = 5;
+              g.y = 4;
+              score += 200;
+              scoreEl.textContent = score;
+            } else {
+              lives--;
+              livesEl.textContent = lives;
+              player.x = 5;
+              player.y = 7;
+              player.dirX = 0;
+              player.dirY = 0;
+              if (lives <= 0) {
+                running = false;
+                overlayTitle.textContent = 'GAME OVER';
+                overlayMsg.textContent = 'Final Score: ' + score;
+                startBtn.textContent = 'RETRY';
+                overlay.style.display = 'flex';
+              }
+            }
+          }
+        });
+      }
+    }
+
+    function draw() {
+      ctx.fillStyle = '#020617';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Draw map
+      for (let r = 0; r < 11; r++) {
+        for (let c = 0; c < 11; c++) {
+          const cell = grid[r][c];
+          const x = c * TILE;
+          const y = r * TILE;
+
+          if (cell === 1) {
+            ctx.fillStyle = '#1e3a8a';
+            ctx.fillRect(x + 2, y + 2, TILE - 4, TILE - 4);
+            ctx.strokeStyle = '#3b82f6';
+            ctx.strokeRect(x + 2, y + 2, TILE - 4, TILE - 4);
+          } else if (cell === 2) {
+            ctx.fillStyle = '#fde047';
+            ctx.beginPath();
+            ctx.arc(x + TILE/2, y + TILE/2, 3, 0, Math.PI * 2);
+            ctx.fill();
+          } else if (cell === 3) {
+            ctx.fillStyle = '#fde047';
+            ctx.beginPath();
+            ctx.arc(x + TILE/2, y + TILE/2, 7, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+
+      // Ghosts
+      ghosts.forEach(g => {
+        ctx.fillStyle = powerTimer > 0 ? (powerTimer < 15 && tick % 4 < 2 ? '#fff' : '#3b82f6') : g.color;
+        const gx = g.x * TILE + TILE / 2;
+        const gy = g.y * TILE + TILE / 2;
+        ctx.beginPath();
+        ctx.arc(gx, gy, 12, Math.PI, 0, false);
+        ctx.lineTo(gx + 12, gy + 12);
+        ctx.lineTo(gx - 12, gy + 12);
+        ctx.closePath();
+        ctx.fill();
+
+        // Eyes
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(gx - 4, gy - 2, 3, 0, Math.PI * 2);
+        ctx.arc(gx + 4, gy - 2, 3, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Player Pacman
+      const px = player.x * TILE + TILE / 2;
+      const py = player.y * TILE + TILE / 2;
+      ctx.fillStyle = '#facc15';
+      let angle = 0;
+      if (player.dirX === 1) angle = 0;
+      else if (player.dirX === -1) angle = Math.PI;
+      else if (player.dirY === 1) angle = Math.PI / 2;
+      else if (player.dirY === -1) angle = -Math.PI / 2;
+
+      const mouthOpen = (tick % 6 < 3) ? 0.35 : 0.05;
+      ctx.beginPath();
+      ctx.arc(px, py, 13, angle + mouthOpen, angle + Math.PI * 2 - mouthOpen);
+      ctx.lineTo(px, py);
+      ctx.fill();
+    }
+
+    function loop() {
+      update();
+      draw();
+      requestAnimationFrame(loop);
+    }
+
+    window.addEventListener('keydown', e => {
+      const k = e.key.toLowerCase();
+      if (k === 'arrowup' || k === 'w') { player.nextX = 0; player.nextY = -1; }
+      else if (k === 'arrowdown' || k === 's') { player.nextX = 0; player.nextY = 1; }
+      else if (k === 'arrowleft' || k === 'a') { player.nextX = -1; player.nextY = 0; }
+      else if (k === 'arrowright' || k === 'd') { player.nextX = 1; player.nextY = 0; }
+    });
+
+    startBtn.addEventListener('click', reset);
+    loop();
+  </script>
+</body>
+</html>

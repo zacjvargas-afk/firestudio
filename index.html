@@ -12,10 +12,357 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./style.css" />
   </head>
-  <body class="bg-slate-950 text-slate-100 antialiased selection:bg-rose-500 selection:text-white">
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+  <body>
+    <!-- Top Navigation Bar -->
+    <header class="header">
+      <div class="header-inner">
+        <!-- Zone 1: Wordmark -->
+        <a href="./" class="brand">
+          <div class="brand-flame">
+            <svg viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+          </div>
+          <div>fire<span>studeo</span></div>
+          <div id="total-games-count" class="brand-count">12 games indexed</div>
+        </a>
+
+        <!-- Zone 2: Navigation Links -->
+        <nav class="nav-links">
+          <button class="nav-btn active" onclick="document.querySelector('.tab-btn[data-category=\'All\']').click()">All Games</button>
+          <button class="nav-btn" onclick="document.querySelector('.tab-btn[data-category=\'Favorites\']').click()">Favorites ★</button>
+          <button class="nav-btn" onclick="document.querySelector('.tab-btn[data-category=\'Arcade\']').click()">Arcade</button>
+          <button class="nav-btn" onclick="document.querySelector('.tab-btn[data-category=\'Classic\']').click()">Classics</button>
+          <button id="nav-json-btn" class="nav-btn">JSON Catalog</button>
+        </nav>
+
+        <!-- Zone 3: Actions -->
+        <div class="header-actions">
+          <button id="btn-random-game" class="btn-random" title="Play a random game">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
+            <span>Random</span>
+          </button>
+          <button id="btn-add-game" class="btn-add">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+            <span>Add Iframe</span>
+          </button>
+          <button id="btn-panic" class="btn-panic" title="Panic Cloaker (Hotkey: [)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <span>Panic [</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Catalog View Container -->
+    <div id="catalog-view">
+      <!-- Hero Section -->
+      <section class="hero">
+        <div class="hero-inner">
+          <div>
+            <div class="hero-kicker">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#f43f5e"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+              <span>Unblocked Web Games Catalog</span>
+              <span>·</span>
+              <span style="color: #94a3b8;">JSON Iframe Architecture</span>
+            </div>
+            <h1 class="hero-title">Fast, unblocked games running directly in clean iframes.</h1>
+            <p class="hero-desc">
+              firestudeo loads self-contained HTML5 games stored as iframe elements inside a lightweight JSON catalog. Zero ads, zero trackers, fast play.
+            </p>
+            <div class="hero-stats">
+              <div><span id="total-games-stat" class="hero-stat-num tabular-nums">12</span> Playable Games</div>
+              <span>·</span>
+              <div><span class="hero-stat-num tabular-nums" style="color: #34d399;">100%</span> Client-Side JSON</div>
+              <span>·</span>
+              <div><span class="hero-stat-num tabular-nums" style="color: #f59e0b;">0</span> Blocked Frames</div>
+            </div>
+          </div>
+
+          <!-- Hero Spotlight Card -->
+          <div class="spotlight-card">
+            <div class="spotlight-top">
+              <span class="spotlight-badge">★ Spotlight Game</span>
+              <span id="spotlight-meta">Arcade · ★ 4.9 · 248K plays</span>
+            </div>
+            <h3 id="spotlight-title" class="spotlight-title">Retro Snake 8-Bit</h3>
+            <p id="spotlight-desc" class="spotlight-desc">
+              Navigate the pixel serpent across the grid, gobble glowing energy orbs, and test your reflexes as speed increases.
+            </p>
+            <div class="spotlight-actions">
+              <button id="btn-play-spotlight" class="btn-play-spotlight">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                <span>PLAY SPOTLIGHT</span>
+              </button>
+              <button id="btn-code-spotlight" class="btn-code-spotlight">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                <span>View Iframe</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sticky Search & Filter Bar -->
+      <section class="filter-bar">
+        <div class="filter-inner">
+          <!-- Categories Segmented Tabs -->
+          <div class="category-tabs">
+            <button class="tab-btn active" data-category="All">All</button>
+            <button class="tab-btn" data-category="Arcade">Arcade</button>
+            <button class="tab-btn" data-category="Classic">Classic</button>
+            <button class="tab-btn" data-category="Puzzle">Puzzle</button>
+            <button class="tab-btn" data-category="Action">Action</button>
+            <button class="tab-btn" data-category="Skill">Skill</button>
+            <button class="tab-btn" data-category="Favorites">Favorites ★</button>
+          </div>
+
+          <!-- Search & Sort -->
+          <div class="filter-controls">
+            <div class="search-box">
+              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input id="search-input" class="search-input" type="text" placeholder="Search games (/ to focus)..." />
+              <button id="clear-search" class="clear-search" style="display: none;">CLEAR</button>
+            </div>
+            <select id="sort-select" class="sort-select">
+              <option value="featured">Featured First</option>
+              <option value="plays">Most Played</option>
+              <option value="rating">Top Rated</option>
+              <option value="title">A - Z</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- Main Games Grid -->
+      <main class="main-content">
+        <div class="grid-header">
+          <div>Showing <span id="games-count" class="tabular-nums" style="font-weight: 700; color: #fff;">12</span> games<span id="category-filter-label"></span></div>
+          <div style="font-size: 0.7rem; color: #64748b;">Click any card to play in iframe</div>
+        </div>
+
+        <div id="games-grid" class="games-grid">
+          <!-- Populated dynamically via app.js -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="empty-state" style="display: none;">
+          <h3>No games found</h3>
+          <p>Try searching for a different keyword or reset your filter.</p>
+          <button class="btn-reset-filters" onclick="document.querySelector('.tab-btn[data-category=\'All\']').click(); document.getElementById('search-input').value=''; document.getElementById('search-input').dispatchEvent(new Event('input'));">Reset Filters</button>
+        </div>
+      </main>
+    </div>
+
+    <!-- Active Game Player Stage View -->
+    <div id="player-view" class="player-view">
+      <!-- Player Toolbar -->
+      <div class="player-toolbar">
+        <button id="player-back-btn" class="btn-back">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          <span>Back to Library</span>
+        </button>
+
+        <div class="player-tools">
+          <button id="player-restart-btn" class="player-tool-btn" title="Restart game">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+            <span>Restart</span>
+          </button>
+          <button id="player-theater-btn" class="player-tool-btn" title="Toggle theater view">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line></svg>
+            <span>Theater</span>
+          </button>
+          <button id="player-fullscreen-btn" class="player-tool-btn" title="Toggle fullscreen">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+            <span>Fullscreen</span>
+          </button>
+          <button id="player-fav-btn" class="player-tool-btn" title="Add to favorites">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            <span>Favorite</span>
+          </button>
+          <button id="player-iframe-code-btn" class="player-tool-btn" title="Inspect stored iframe in games.json">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+            <span>JSON Iframe</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Stage -->
+      <div id="stage-wrapper" class="stage-wrapper">
+        <!-- Injected dynamically via app.js -->
+      </div>
+
+      <!-- Player Details -->
+      <div class="player-info-grid">
+        <div class="player-card">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 0.5rem;">
+            <h1 id="player-game-title" style="font-size: 1.5rem; font-weight: 800; color: #fff;">Retro Snake</h1>
+            <div id="player-game-meta" style="font-size: 0.8rem; color: #94a3b8;">Arcade · ★ 4.9 · 248K plays</div>
+          </div>
+          <p id="player-game-desc" style="font-size: 0.85rem; color: #cbd5e1; margin-top: 0.75rem; line-height: 1.6;">
+            Navigate the pixel serpent across the grid.
+          </p>
+          <div class="controls-box">
+            <div class="controls-box-title">Controls & Keybinds</div>
+            <div id="player-game-controls" class="controls-box-text">Arrow keys to turn · Space to pause</div>
+          </div>
+        </div>
+
+        <div class="player-card">
+          <h4 style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #38bdf8; margin-bottom: 0.5rem;">
+            Catalog Source
+          </h4>
+          <p style="font-size: 0.75rem; color: #94a3b8; line-height: 1.5; margin-bottom: 1rem;">
+            Loaded from <code style="background: #030712; padding: 2px 4px; border-radius: 4px; color: #f43f5e;">games.json</code> as an <code style="background: #030712; padding: 2px 4px; border-radius: 4px; color: #f59e0b;">&lt;iframe&gt;</code> element. Client-side execution without telemetry.
+          </p>
+          <button onclick="document.getElementById('player-iframe-code-btn').click()" style="width: 100%; background: #1e293b; color: #fff; font-size: 0.75rem; font-weight: 600; padding: 0.5rem; border-radius: 6px;">
+            Inspect Iframe JSON
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- JSON Catalog Viewer & Custom Game Adder Modal -->
+    <div id="json-modal" class="modal-overlay">
+      <div class="modal-box">
+        <div class="modal-header">
+          <div class="modal-title">games.json Catalog & Iframe Storage</div>
+          <button id="modal-close-btn" class="modal-close">&times;</button>
+        </div>
+        <div class="modal-tabs">
+          <button id="modal-tab-json" class="modal-tab-btn active">View Full JSON</button>
+          <button id="modal-tab-add" class="modal-tab-btn">+ Add Game Iframe</button>
+          <button id="modal-tab-iframe" class="modal-tab-btn" style="display: none;">Single Iframe</button>
+        </div>
+        <div class="modal-body">
+          <!-- Tab 1: Full JSON -->
+          <div id="json-tab-content">
+            <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-bottom: 0.75rem;">
+              <button id="btn-copy-json" style="background: #1e293b; color: #fff; font-size: 0.75rem; padding: 0.35rem 0.75rem; border-radius: 6px;">Copy JSON</button>
+              <button id="btn-download-json" style="background: #1e293b; color: #38bdf8; font-size: 0.75rem; padding: 0.35rem 0.75rem; border-radius: 6px;">Download .json</button>
+            </div>
+            <pre id="json-code-view" class="json-code-view"></pre>
+          </div>
+
+          <!-- Tab 2: Add Game -->
+          <div id="add-tab-content" style="display: none;">
+            <form id="add-game-form">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                  <label for="new-game-title">Game Title</label>
+                  <input id="new-game-title" class="form-input" type="text" placeholder="e.g. Pixel Racer" required />
+                </div>
+                <div class="form-group">
+                  <label for="new-game-category">Category</label>
+                  <select id="new-game-category" class="form-select">
+                    <option value="Arcade">Arcade</option>
+                    <option value="Classic">Classic</option>
+                    <option value="Puzzle">Puzzle</option>
+                    <option value="Action">Action</option>
+                    <option value="Skill">Skill</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="new-game-desc">Description</label>
+                <textarea id="new-game-desc" class="form-textarea" rows="2" placeholder="Brief gameplay summary..."></textarea>
+              </div>
+              <div class="form-group">
+                <label for="new-game-controls">Controls</label>
+                <input id="new-game-controls" class="form-input" type="text" placeholder="e.g. Arrow keys to steer, Space to brake" />
+              </div>
+              <div class="form-group">
+                <label for="new-game-iframe">Iframe HTML Tag</label>
+                <textarea id="new-game-iframe" class="form-textarea" rows="3" placeholder='<iframe src="https://example.com/game" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>' required></textarea>
+                <div style="font-size: 0.65rem; color: #64748b; margin-top: 0.25rem;">
+                  Paste any valid &lt;iframe&gt; embed code. It will be stored directly inside the active catalog.
+                </div>
+              </div>
+              <button type="submit" class="btn-submit-game">Save Game to Catalog</button>
+            </form>
+          </div>
+
+          <!-- Tab 3: Single Iframe Inspection -->
+          <div id="iframe-tab-content" style="display: none;">
+            <div style="margin-bottom: 1rem;">
+              <div style="font-size: 0.75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.35rem;">Stored Iframe HTML</div>
+              <div style="display: flex; gap: 0.5rem; align-items: center; background: #030712; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                <div id="single-iframe-string" style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #f43f5e; word-break: break-all; flex: 1;"></div>
+                <button id="btn-copy-single-iframe" style="background: #1e293b; color: #fff; font-size: 0.75rem; padding: 0.35rem 0.65rem; border-radius: 4px; shrink-0;">Copy Iframe</button>
+              </div>
+            </div>
+            <div>
+              <div style="font-size: 0.75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.35rem;">Full JSON Entry</div>
+              <pre id="single-json-view" class="json-code-view" style="max-height: 250px;"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- School Panic Cloak Screen -->
+    <div id="panic-screen" class="panic-screen">
+      <div class="panic-toolbar">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <div style="width: 28px; height: 28px; border-radius: 4px; background: #2563eb; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">W</div>
+          <div>
+            <div style="font-weight: 600; font-size: 0.85rem; color: #1e293b;">Unit 4 Assignment: World History Notes (Research Draft)</div>
+            <div style="font-size: 0.7rem; color: #64748b;">File · Edit · View · Insert · Format · Tools · <span style="color: #059669; font-weight: 500;">Saved to Drive</span></div>
+          </div>
+        </div>
+        <button id="btn-resume-panic" style="background: #ffffff; border: 1px solid #cbd5e1; padding: 0.35rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; color: #334155; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+          Resume firestudeo (or press [ key)
+        </button>
+      </div>
+
+      <div class="panic-doc">
+        <h1 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; font-family: -apple-system, sans-serif;">
+          The Second Industrial Revolution: Technological and Societal Paradigm Shifts
+        </h1>
+        <p style="font-size: 0.75rem; color: #64748b; margin-bottom: 1.5rem; font-family: -apple-system, sans-serif;">
+          Course: AP European History · Period 3 · Section B
+        </p>
+
+        <h2 style="font-size: 1.05rem; font-weight: 700; margin-top: 1.25rem; margin-bottom: 0.5rem; font-family: -apple-system, sans-serif;">
+          1. Introduction & Primary Catalysts
+        </h2>
+        <p style="margin-bottom: 1rem; font-size: 0.9rem;">
+          Between roughly 1870 and 1914, the Second Industrial Revolution represented a phase of rapid industrialization characterized by the expansion of electricity, petroleum, and steel production. Unlike the first phase, which was dominated by textile manufacturing and steam power in Great Britain, the second phase was multi-polar, with rapid advancements occurring simultaneously across Western Europe, the United States, and Japan.
+        </p>
+
+        <h2 style="font-size: 1.05rem; font-weight: 700; margin-top: 1.25rem; margin-bottom: 0.5rem; font-family: -apple-system, sans-serif;">
+          2. Steel Refining: The Bessemer and Open-Hearth Processes
+        </h2>
+        <p style="margin-bottom: 1rem; font-size: 0.9rem;">
+          The development of the Bessemer converter and the subsequent Siemens-Martin open-hearth process drastically decreased the production cost of steel while elevating tensile strength. This directly stimulated the expansion of rail transport networks, maritime steamships, and skyscraper architecture in booming metropolitan centers.
+        </p>
+
+        <div style="background: #f8fafc; border-left: 4px solid #2563eb; padding: 1rem; margin: 1.25rem 0; font-size: 0.8rem; font-family: -apple-system, sans-serif;">
+          <strong>Key Takeaway:</strong> Compare and contrast the energy infrastructure of the First (coal, steam) versus Second (petroleum, electric grids) Industrial Revolutions.
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-inner">
+        <div>
+          <span style="font-weight: 700; color: #e2e8f0;">firestudeo</span>
+          <span>·</span>
+          <span>Unblocked Games Catalog</span>
+          <span>·</span>
+          <span>JSON Iframe Driven</span>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+          <button onclick="document.getElementById('nav-json-btn').click()" style="color: #94a3b8;">JSON Catalog</button>
+          <button onclick="document.getElementById('btn-panic').click()" style="color: #f43f5e;">Panic Key [</button>
+          <span>v1.0 (Static HTML / CSS / JS)</span>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Scripts: Pure Static JavaScript Entry Point (No Build Step Required on GitHub) -->
+    <script src="./app.js"></script>
   </body>
 </html>
-

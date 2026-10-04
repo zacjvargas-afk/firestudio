@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Brick Breaker</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      background: #090d16;
+      color: #f1f5f9;
+      font-family: 'JetBrains Mono', monospace, -apple-system, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+      padding: 10px;
+    }
+    .hud {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 480px;
+      padding: 8px 16px;
+      font-size: 13px;
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 8px 8px 0 0;
+    }
+    .hud-label { color: #94a3b8; font-size: 11px; }
+    .hud-val { color: #f59e0b; font-weight: bold; }
+    #wrap {
+      position: relative;
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 0 0 8px 8px;
+    }
+    canvas { display: block; }
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.88);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      backdrop-filter: blur(4px);
+    }
+    .title { font-size: 26px; font-weight: 800; color: #f59e0b; }
+    .btn {
+      padding: 10px 24px;
+      background: #f59e0b;
+      color: #020617;
+      border: none;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .btn:hover { background: #fbbf24; }
+    .hint { margin-top: 10px; font-size: 11px; color: #64748b; }
+    .key { background: #1e293b; padding: 2px 6px; border-radius: 4px; color: #cbd5e1; }
+  </style>
+</head>
+<body>
+  <div class="hud">
+    <div><span class="hud-label">Score: </span><span id="score" class="hud-val">0</span></div>
+    <div><span class="hud-label">Lives: </span><span id="lives" class="hud-val">3</span></div>
+    <div><span class="hud-label">Stage: </span><span id="stage" class="hud-val">1</span></div>
+  </div>
+
+  <div id="wrap">
+    <canvas id="c" width="480" height="480"></canvas>
+    <div id="overlay" class="overlay">
+      <div id="overlay-title" class="title">BRICK BREAKER</div>
+      <div id="overlay-msg" style="color: #94a3b8; font-size: 13px;">Smash every brick to clear the stage!</div>
+      <button id="start-btn" class="btn">START</button>
+    </div>
+  </div>
+
+  <div class="hint">
+    Mouse or <span class="key">←/→</span> or <span class="key">A/D</span> to slide paddle
+  </div>
+
+  <script>
+    const canvas = document.getElementById('c');
+    const ctx = canvas.getContext('2d');
+    const scoreEl = document.getElementById('score');
+    const livesEl = document.getElementById('lives');
+    const stageEl = document.getElementById('stage');
+    const overlay = document.getElementById('overlay');
+    const overlayTitle = document.getElementById('overlay-title');
+    const overlayMsg = document.getElementById('overlay-msg');
+    const startBtn = document.getElementById('start-btn');
+
+    let paddle = { w: 80, h: 12, x: 200, y: 450, speed: 7 };
+    let ball = { x: 240, y: 300, vx: 3.5, vy: -4, r: 6 };
+    let bricks = [];
+    let score = 0;
+    let lives = 3;
+    let stage = 1;
+    let running = false;
+
+    const rows = 5;
+    const cols = 8;
+    const brickW = 50;
+    const brickH = 16;
+    const brickPadding = 6;
+    const offsetTop = 40;
+    const offsetLeft = 18;
+    const brickColors = ['#ef4444', '#f97316', '#eab308', '#10b981', '#06b6d4'];
+
+    const keys = {};
+    window.addEventListener('keydown', e => keys[e.code] = true);
+    window.addEventListener('keyup', e => keys[e.code] = false);
+
+    canvas.addEventListener('mousemove', e => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      paddle.x = Math.max(0, Math.min(canvas.width - paddle.w, mx - paddle.w / 2));
+    });
+
+    function initBricks() {
+      bricks = [];
+      for (let r = 0; r < rows; r++) {
+        bricks[r] = [];
+        for (let c = 0; c < cols; c++) {
+          bricks[r][c] = { x: 0, y: 0, status: 1, color: brickColors[r] };
+        }
+      }
+    }
+
+    function resetBall() {
+      ball.x = paddle.x + paddle.w / 2;
+      ball.y = paddle.y - 12;
+      ball.vx = (Math.random() > 0.5 ? 1 : -1) * (3.5 + stage * 0.4);
+      ball.vy = -(4 + stage * 0.4);
+    }
+
+    function start() {
+      score = 0;
+      lives = 3;
+      stage = 1;
+      scoreEl.textContent = '0';
+      livesEl.textContent = '3';
+      stageEl.textContent = '1';
+      initBricks();
+      resetBall();
+      running = true;
+      overlay.style.display = 'none';
+    }
+
+    function update() {
+      if (!running) return;
+
+      if (keys['ArrowLeft'] || keys['KeyA']) paddle.x -= paddle.speed;
+      if (keys['ArrowRight'] || keys['KeyD']) paddle.x += paddle.speed;
+      paddle.x = Math.max(0, Math.min(canvas.width - paddle.w, paddle.x));
+
+      ball.x += ball.vx;
+      ball.y += ball.vy;
+
+      // Walls
+      if (ball.x - ball.r < 0) { ball.x = ball.r; ball.vx *= -1; }
+      if (ball.x + ball.r > canvas.width) { ball.x = canvas.width - ball.r; ball.vx *= -1; }
+      if (ball.y - ball.r < 0) { ball.y = ball.r; ball.vy *= -1; }
+
+      // Bottom fall
+      if (ball.y + ball.r > canvas.height) {
+        lives--;
+        livesEl.textContent = lives;
+        if (lives <= 0) {
+          running = false;
+          overlayTitle.textContent = 'GAME OVER';
+          overlayMsg.textContent = 'Final Score: ' + score;
+          startBtn.textContent = 'TRY AGAIN';
+          overlay.style.display = 'flex';
+          return;
+        } else {
+          resetBall();
+        }
+      }
+
+      // Paddle hit
+      if (ball.y + ball.r > paddle.y && ball.y - ball.r < paddle.y + paddle.h &&
+          ball.x > paddle.x && ball.x < paddle.x + paddle.w) {
+        ball.y = paddle.y - ball.r;
+        const hitPoint = (ball.x - (paddle.x + paddle.w / 2)) / (paddle.w / 2);
+        const speed = Math.hypot(ball.vx, ball.vy);
+        ball.vx = hitPoint * (speed * 0.9);
+        ball.vy = -Math.sqrt(Math.max(4, speed * speed - ball.vx * ball.vx));
+      }
+
+      // Brick collision
+      let remaining = 0;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const b = bricks[r][c];
+          if (b.status === 1) {
+            remaining++;
+            const bx = c * (brickW + brickPadding) + offsetLeft;
+            const by = r * (brickH + brickPadding) + offsetTop;
+            b.x = bx;
+            b.y = by;
+
+            if (ball.x > bx && ball.x < bx + brickW &&
+                ball.y > by && ball.y < by + brickH) {
+              ball.vy *= -1;
+              b.status = 0;
+              score += 15 * (rows - r);
+              scoreEl.textContent = score;
+            }
+          }
+        }
+      }
+
+      if (remaining === 0) {
+        stage++;
+        stageEl.textContent = stage;
+        initBricks();
+        resetBall();
+      }
+    }
+
+    function draw() {
+      ctx.fillStyle = '#020617';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Bricks
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const b = bricks[r][c];
+          if (b.status === 1) {
+            const bx = c * (brickW + brickPadding) + offsetLeft;
+            const by = r * (brickH + brickPadding) + offsetTop;
+            ctx.fillStyle = b.color;
+            ctx.fillRect(bx, by, brickW, brickH);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.fillRect(bx, by, brickW, 2);
+          }
+        }
+      }
+
+      // Paddle
+      ctx.fillStyle = '#f59e0b';
+      ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillRect(paddle.x, paddle.y, paddle.w, 2);
+
+      // Ball
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function loop() {
+      update();
+      draw();
+      requestAnimationFrame(loop);
+    }
+
+    startBtn.addEventListener('click', start);
+    loop();
+  </script>
+</body>
+</html>
